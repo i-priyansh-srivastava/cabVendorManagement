@@ -1,0 +1,67 @@
+# ======================
+# Backend
+# ======================
+/Backend/.env
+/Backend/node_modules/
+
+# ======================
+# Frontend
+# ======================
+/Frontend/.env
+/Frontend/node_modules/
+/Frontend/build
+
+# ======================
+# Root-level
+# ======================
+node_modules/
+.pnp/
+.pnp.js
+
+# ======================
+# Environment Files
+# ======================
+.env
+.env.*
+!.env.example          # Keep example env files
+
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ======================
+# Logs
+# ======================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ======================
+# Build Output
+# ======================
+dist/
+dist-ssr/
+*.local
+coverage/
+
+# ======================
+# System Files
+# ======================
+.DS_Store
+
+# ======================
+# Editor Configs
+# ======================
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
