@@ -91,8 +91,8 @@ const roleSchema = new mongoose.Schema({
 });
 
 // Index for efficient querying
-roleSchema.index({ level: 1 });
-roleSchema.index({ name: 1 }, { unique: true });
+// roleSchema.index({ level: 1 });
+// roleSchema.index({ roleName: 1 }, { unique: true });
 
 const Role = mongoose.model('Role', roleSchema);
 

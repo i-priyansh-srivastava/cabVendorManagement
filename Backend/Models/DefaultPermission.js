@@ -1,10 +1,9 @@
 const mongoose = require('mongoose');
 
 const permissionSchema = new mongoose.Schema({
-  // Reference to the vendor
-  vendorId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Vendor',
+  // Reference to the vendor using uniqueID
+  vendorUniqueID: {
+    type: String,
     required: true,
     unique: true
   },
@@ -122,9 +121,9 @@ const permissionSchema = new mongoose.Schema({
 });
 
 // Indexes for efficient querying
-permissionSchema.index({ vendorId: 1 });
-permissionSchema.index({ vendorLevel: 1 });
-permissionSchema.index({ 'permissionHistory.grantedBy': 1 });
+// permissionSchema.index({ vendorId: 1 });
+// permissionSchema.index({ vendorLevel: 1 });
+// permissionSchema.index({ 'permissionHistory.grantedBy': 1 });
 
 const DefaultPermission = mongoose.model('Permission', permissionSchema);
 

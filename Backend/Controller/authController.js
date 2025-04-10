@@ -22,7 +22,7 @@ exports.loginVendor = async (req, res) => {
     const token = jwt.sign(
       { id: vendor._id, level: vendor.level, uniqueID: vendor.uniqueID },
       JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: '7m' }
     );
 
     res.json({

@@ -46,11 +46,21 @@ class AuthService {
   static async getVendorPermissions() {
     try {
       const token = this.getToken();
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
       const response = await axios.get(`${API_URL}/vendors/permissions`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+
+      if (!response.data) {
+        throw new Error('No permissions data received');
+      }
+
       return response.data;
     } catch (error) {
+      console.error('Error fetching vendor permissions:', error);
       throw error.response?.data || { message: 'Failed to fetch permissions' };
     }
   }

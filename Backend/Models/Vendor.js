@@ -51,20 +51,20 @@ const vendorSchema = new mongoose.Schema({
     default: 'ACTIVE'
   },
   parentId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Vendor',
-    default: null
+    type: String,
+    required: true,
+    unique: true
   },
 }, {
   timestamps: true
 });
 
 // Compound indexing for efficient querying
-vendorSchema.index({ level: 1, region: 1 });
-vendorSchema.index({ level: 1, city: 1 });
-vendorSchema.index({ level: 1, locality: 1 });
-vendorSchema.index({ parentId: 1 });
-vendorSchema.index({ email: 1 }, { unique: true });
+// vendorSchema.index({ level: 1, region: 1 });
+// vendorSchema.index({ level: 1, city: 1 });
+// vendorSchema.index({ level: 1, locality: 1 });
+// vendorSchema.index({ parentId: 1 });
+// vendorSchema.index({ email: 1 }, { unique: true });
 
 const Vendor = mongoose.model('Vendor', vendorSchema);
 
