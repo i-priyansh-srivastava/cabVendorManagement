@@ -10,7 +10,11 @@ const vendorSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
-  password: {
+  uniqueID: {
+    type: String,
+    required: true
+  },
+  password: { 
     type: String,
     required: true
   },
@@ -51,14 +55,6 @@ const vendorSchema = new mongoose.Schema({
     ref: 'Vendor',
     default: null
   },
-  roles: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Role'
-  }],
-  permissions: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Permission'
-  }]
 }, {
   timestamps: true
 });
