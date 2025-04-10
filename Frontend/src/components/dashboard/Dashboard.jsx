@@ -1,39 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Box,
-  Container,
-  Grid,
-  Paper,
-  Typography,
-  AppBar,
-  Toolbar,
-  IconButton,
-  Menu,
-  MenuItem,
-  Avatar,
-  Drawer,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Divider,
-  CircularProgress,
-  Alert
+import { Box, Container, Grid, Paper, Typography, AppBar, Toolbar, IconButton, Menu, 
+  MenuItem, Avatar, Drawer, List, ListItem, ListItemIcon, ListItemText, Divider, CircularProgress, Alert
 } from '@mui/material';
-import {
-  Dashboard as DashboardIcon,
-  AccountCircle,
-  Logout,
-  DirectionsCar,
-  People,
-  CalendarToday,
-  Payment,
-  Gavel,
-  Business,
-  Assessment
-} from '@mui/icons-material';
+import { Dashboard as DashboardIcon, AccountCircle, Logout, DirectionsCar, People, CalendarToday,
+  Payment, Gavel, Business, Assessment } from '@mui/icons-material';
 import AuthService from '../../services/authServices';
+import axios from 'axios';
+
+// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v1';
+const API_URL = 'http://localhost:5000/api/v1';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -55,16 +31,26 @@ const Dashboard = () => {
           throw new Error('No vendor data found');
         }
         setVendor(currentVendor);
+        console.log('Current Vendor:', currentVendor);
+        const uniqueID = currentVendor?.vendor?.uniqueID;
+        console.log('Unique ID:', uniqueID);
 
-        const vendorPermissions = await AuthService.getVendorPermissions();
-        if (!vendorPermissions || !vendorPermissions.grantedPermissions) {
-          throw new Error('Invalid permissions data structure');
-        }
-        setPermissions(vendorPermissions);
-        console.log('Vendor Permissions:', vendorPermissions);
+        // const vendorPermissions = await AuthService.getVendorPermissions();
+        // if (!vendorPermissions || !vendorPermissions.grantedPermissions) {
+        //   throw new Error('Invalid permissions data structure');
+        // }
+
+        const vendorPermissions = await axios.get(`${API_URL}/vendors/permissions`, {
+          params: { uniqueID },
+          headers: {
+            Authorization: `Bearer ${currentVendor.token}`
+          }
+        });
+        setPermissions(vendorPermissions.data);
+        console.log('Vendor Permissions:', vendorPermissions.data);
         
         // Set default module to first available one
-        const modules = Object.keys(vendorPermissions.grantedPermissions);
+        const modules = Object.keys(vendorPermissions.data.grantedPermissions);
         if (modules.length > 0) {
           setSelectedModule(modules[0]);
         }
