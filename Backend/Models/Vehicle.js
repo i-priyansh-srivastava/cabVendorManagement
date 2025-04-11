@@ -11,6 +11,10 @@ const vehicleSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
+  color: {
+    type: String,
+    required: true
+  },
   brand: {
     type: String,
     required: true
@@ -29,12 +33,14 @@ const vehicleSchema = new mongoose.Schema({
   },
   permitNumber: {
     type: String,
-    required: true
+    required: true,
+    unique: true
   },
   //permitNumber expires after 9 years from date of insurance
   pucNumber: {
     type: String,
-    required: true
+    required: true,
+    unique: true
   },
   pucExpiryDate: {
     type: Date,
@@ -42,7 +48,8 @@ const vehicleSchema = new mongoose.Schema({
   },
   insuranceNumber: { 
     type: String,
-    required: true
+    required: true,
+    unique: true
   },
   insuranceExpiryDate: {
     type: Date,
@@ -58,26 +65,20 @@ const vehicleSchema = new mongoose.Schema({
     enum: ['ACTIVE', 'MAINTENANCE', 'INACTIVE'],
     default: 'ACTIVE'
   },
-  vendorId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Vendor',
-    required: true
+  vendorUniqueID: {
+    type: String,
+    required: true,
   },
-  driverId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Driver',
-    default: null
+  driverLicenceNumber: {
+    type: String,
+    unique: true,
+    default: ""
   }
 
 }, {
   timestamps: true
 });
 
-// Index for efficient & faster querying
-vehicleSchema.index({ registrationNumber: 1 }, { unique: true });
-vehicleSchema.index({ numberPlate: 1 }, { unique: true });
-vehicleSchema.index({ vendorId: 1 });
-vehicleSchema.index({ driverId: 1 });
 
 const Vehicle = mongoose.model('Vehicle', vehicleSchema);
 

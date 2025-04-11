@@ -27,30 +27,27 @@ const driverSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    hasOwnCab: {
+        type: Boolean,
+        default: false
+    },
 
     status: {
         type: String,
         enum: ['ACTIVE', 'INACTIVE', 'SUSPENDED'],
         default: 'ACTIVE'
     },
-    vendorId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Vendor',
-        required: true
+    vendorUniqueID: {
+        type: String,
+        required: true,
     },
-    vehicleId: {
-        type: mongoose.Schema.Types.ObjectId, //if driver is not assigned to a vehicle, sotres undefined
-        ref: 'Vehicle'
+    vehicleRegistrationNumber: {
+        type: String,
+        default: "",
     }
 }, {
     timestamps: true
 });
-
-// Indexing for efficient & faster querying
-driverSchema.index({ email: 1 }, { unique: true });
-driverSchema.index({ licenseNumber: 1 }, { unique: true });
-driverSchema.index({ vendorId: 1 });
-driverSchema.index({ vehicleId: 1 });
 
 const Driver = mongoose.model('Driver', driverSchema);
 

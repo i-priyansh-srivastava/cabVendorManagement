@@ -6,7 +6,9 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Login from './components/auth/Login';
 import Dashboard from './components/dashboard/Dashboard';
 import ProtectedRoute from './components/auth/ProtectedRoute';
-import AddVendor from "./components/vendorAdd/AddSubVendor";
+import AddVendor from "./components/onboarding/AddDriver";
+// import AddVendor from "./components/onboarding/AddVehicle";
+
 import DefaultPermission from "./components/vendorAdd/DefineDefaultRole";
 
 const theme = createTheme({
@@ -46,7 +48,7 @@ function App() {
           />
 
           <Route
-            path="/add_Vendor"
+            path="/add_driver"
             element={
               <ProtectedRoute>
                 <AddVendor />
