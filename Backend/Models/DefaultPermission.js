@@ -13,7 +13,7 @@ const permissionSchema = new mongoose.Schema({
     required: true,
     enum: [1, 2, 3, 4] // 1: Super, 2: Regional, 3: City, 4: Local
   },
-  // All granted permissions (both default and delegated)
+  // All granted permissions (only default or that will not be time based)
   grantedPermissions: {
     fleetManagement: {
       canManageFleet: Boolean,
@@ -62,53 +62,14 @@ const permissionSchema = new mongoose.Schema({
   permissionHistory: [{
     // Who granted/revoked the permission
     grantedBy: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: 'Vendor',
       required: true
-    },
-    // Type of permission change (DEFAULT, DELEGATED, REVOKED)
-    changeType: {
-      type: String,
-      required: true,
-      enum: ['DEFAULT', 'DELEGATED', 'REVOKED']
     },
     // The permission that was changed (e.g., "fleetManagement.canManageFleet")
     permission: {
       type: String,
       required: true
-    },
-    // Previous value
-    previousValue: {
-      type: Boolean,
-      required: true
-    },
-    // New value
-    newValue: {
-      type: Boolean,
-      required: true
-    },
-    // Additional conditions for delegated permissions
-    conditions: {
-      requiresApproval: {
-        type: Boolean,
-        default: false
-      },
-      maxAmount: {
-        type: Number,
-        default: null
-      },
-      allowedLocations: [{
-        type: String
-      }]
-    },
-    // For temporary delegations
-    startDate: {
-      type: Date,
-      default: null
-    },
-    endDate: {
-      type: Date,
-      default: null
     },
     timestamp: {
       type: Date,
@@ -120,10 +81,6 @@ const permissionSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Indexes for efficient querying
-// permissionSchema.index({ vendorId: 1 });
-// permissionSchema.index({ vendorLevel: 1 });
-// permissionSchema.index({ 'permissionHistory.grantedBy': 1 });
 
 const DefaultPermission = mongoose.model('Permission', permissionSchema);
 
