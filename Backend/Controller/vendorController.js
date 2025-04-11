@@ -32,10 +32,11 @@ exports.addVendor = async (req, res) => {
 
     let resolvedRegion = region || null;
     let resolvedCity = city || null;
+    let parentVendor = null;
 
     // Validate parent vendor if provided
     if (parentId) {
-      const parentVendor = await Vendor.findOne({ uniqueID: parentId });
+      parentVendor = await Vendor.findOne({ uniqueID: parentId });
       if (!parentVendor) {
         return res.status(400).json({ message: 'Parent vendor not found' });
       }
@@ -84,6 +85,12 @@ exports.addVendor = async (req, res) => {
     });
 
     await newVendor.save();
+
+    if (parentVendor) {
+      parentVendor.subVendorIDs = parentVendor.subVendorIDs || [];
+      parentVendor.subVendorIDs.push(newVendor.uniqueID);
+      await parentVendor.save();
+    }
 
     const vendorData = {
       id: newVendor._id,

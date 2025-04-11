@@ -1,12 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Container, Grid, Paper, Typography, AppBar, Toolbar, IconButton, Menu, 
+import {
+  Box, Container, Grid, Paper, Typography, AppBar, Toolbar, IconButton, Menu,
   MenuItem, Avatar, Drawer, List, ListItem, ListItemIcon, ListItemText, Divider, CircularProgress, Alert
 } from '@mui/material';
-import { Dashboard as DashboardIcon, AccountCircle, Logout, DirectionsCar, People, CalendarToday,
-  Payment, Gavel, Business, Assessment } from '@mui/icons-material';
+import {
+  Dashboard as DashboardIcon, AccountCircle, Logout, DirectionsCar, People, CalendarToday,
+  Payment, Gavel, Business, Assessment
+} from '@mui/icons-material';
 import AuthService from '../../services/authServices';
 import axios from 'axios';
+
+import VendorManagement from './features/VendorManagement';
+import DriverManagement from './features/DriverManagement';
+// import FleetManagement from './features/manageFleet';
+// import BookingManagement from './features/manageBookings';
+// import PaymentManagement from './features/managePayments';
+// import ComplianceManagement from './features/manageCompliance';
+// import Reporting from './features/manageReporting';
 
 // const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v1';
 const API_URL = 'http://localhost:5000/api/v1';
@@ -19,26 +30,30 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedModule, setSelectedModule] = useState(null);
+  const [moduleContent, setModuleContent] = useState(null);
+
+  const moduleComponentMap = {
+    vendorManagement: <VendorManagement />,
+    driverManagement: <DriverManagement />,
+    // fleetManagement: <FleetManagement />,
+    // bookingManagement: <BookingManagement />,
+    // paymentManagement: <PaymentManagement />,
+    // complianceManagement: <ComplianceManagement />,
+    // reporting: <Reporting />,
+  };
 
   useEffect(() => {
     const loadVendorData = async () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         const currentVendor = AuthService.getCurrentVendor();
         if (!currentVendor) {
           throw new Error('No vendor data found');
         }
         setVendor(currentVendor);
-        console.log('Current Vendor:', currentVendor);
         const uniqueID = currentVendor?.vendor?.uniqueID;
-        console.log('Unique ID:', uniqueID);
-
-        // const vendorPermissions = await AuthService.getVendorPermissions();
-        // if (!vendorPermissions || !vendorPermissions.grantedPermissions) {
-        //   throw new Error('Invalid permissions data structure');
-        // }
 
         const vendorPermissions = await axios.get(`${API_URL}/vendors/permissions`, {
           params: { uniqueID },
@@ -48,7 +63,7 @@ const Dashboard = () => {
         });
         setPermissions(vendorPermissions.data);
         console.log('Vendor Permissions:', vendorPermissions.data);
-        
+
         // Set default module to first available one
         const modules = Object.keys(vendorPermissions.data.grantedPermissions);
         if (modules.length > 0) {
@@ -64,6 +79,19 @@ const Dashboard = () => {
 
     loadVendorData();
   }, []);
+
+  useEffect(() => {
+    if (selectedModule && moduleComponentMap[selectedModule]) {
+      setModuleContent(moduleComponentMap[selectedModule]);
+    } else if (selectedModule) {
+      // If component not found for module, show fallback
+      setModuleContent(
+        <Box sx={{ p: 3 }}>
+          <Alert severity="info">No UI component available for this module yet.</Alert>
+        </Box>
+      );
+    }
+  }, [selectedModule]);
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -101,69 +129,6 @@ const Dashboard = () => {
       default:
         return <DashboardIcon />;
     }
-  };
-
-  const renderPermissionCards = () => {
-    if (loading) {
-      return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-          <CircularProgress />
-        </Box>
-      );
-    }
-
-    if (error) {
-      return (
-        <Box sx={{ p: 3 }}>
-          <Alert severity="error">{error}</Alert>
-        </Box>
-      );
-    }
-
-    if (!permissions || !selectedModule) {
-      return (
-        <Box sx={{ p: 3 }}>
-          <Alert severity="info">No permissions data available</Alert>
-        </Box>
-      );
-    }
-
-    const modulePermissions = permissions.grantedPermissions[selectedModule];
-    if (!modulePermissions) {
-      return (
-        <Box sx={{ p: 3 }}>
-          <Alert severity="warning">No permissions found for selected module</Alert>
-        </Box>
-      );
-    }
-
-    const permissionEntries = Object.entries(modulePermissions);
-
-    return (
-      <Grid container spacing={3}>
-        {permissionEntries.map(([permission, value]) => (
-          <Grid item xs={12} sm={6} md={4} key={permission}>
-            <Paper
-              elevation={3}
-              sx={{
-                p: 3,
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                backgroundColor: value ? '#e8f5e9' : '#ffebee'
-              }}
-            >
-              <Typography variant="h6" gutterBottom>
-                {value ? '✓' : '✗'} {permission}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {value ? 'Permission Granted' : 'Permission Not Granted'}
-              </Typography>
-            </Paper>
-          </Grid>
-        ))}
-      </Grid>
-    );
   };
 
   const drawerWidth = 240;
@@ -209,41 +174,48 @@ const Dashboard = () => {
           '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
-            marginTop: '64px'
           },
         }}
       >
         <Toolbar />
         <Box sx={{ overflow: 'auto' }}>
           <List>
-            {permissions && Object.keys(permissions.grantedPermissions).map((module) => (
+            {permissions?.grantedPermissions && Object.entries(permissions.grantedPermissions).map(([module, perms]) => (
               <ListItem
                 button
                 key={module}
                 selected={selectedModule === module}
                 onClick={() => handleModuleSelect(module)}
+                disabled={!Object.values(perms).some(v => v)}
               >
                 <ListItemIcon>
                   {getModuleIcon(module)}
                 </ListItemIcon>
-                <ListItemText primary={module.replace(/([A-Z])/g, ' $1').trim()} />
+                <ListItemText
+                  primary={module.charAt(0).toUpperCase() + module.slice(1).replace(/([A-Z])/g, ' $1')}
+                />
               </ListItem>
             ))}
           </List>
-          <Divider />
         </Box>
       </Drawer>
 
-      <Box component="main" sx={{ flexGrow: 1, p: 3, marginTop: '64px' }}>
-        <Container maxWidth="lg">
-          <Typography variant="h4" gutterBottom>
-            {selectedModule ? selectedModule.replace(/([A-Z])/g, ' $1').trim() : 'Select a Module'}
-          </Typography>
-          {renderPermissionCards()}
-        </Container>
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <Toolbar />
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+            <CircularProgress />
+          </Box>
+        ) : error ? (
+          <Box sx={{ p: 3 }}>
+            <Alert severity="error">{error}</Alert>
+          </Box>
+        ) : (
+          moduleContent
+        )}
       </Box>
     </Box>
   );
 };
 
-export default Dashboard; 
+export default Dashboard;

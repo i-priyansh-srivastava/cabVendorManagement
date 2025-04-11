@@ -49,22 +49,44 @@ class VendorHierarchy {
   }
 
   // Get all descendants of a vendor
-  static async getDescendants(vendorId) {
+  static async getDescendants(vendorUniqueID) {
     const descendants = [];
-    const queue = [vendorId];
-    
+    const queue = [vendorUniqueID];
+  
     while (queue.length > 0) {
-      const currentId = queue.shift();
-      const children = await Vendor.find({ parentId: currentId });
-      
+      const currentUniqueID = queue.shift();
+      const currentVendor = await Vendor.findOne({ uniqueID: currentUniqueID });
+  
+      if (!currentVendor || !currentVendor.subVendorIDs) continue;
+  
+      const children = await Vendor.find({ uniqueID: { $in: currentVendor.subVendorIDs } });
+  
       for (const child of children) {
         descendants.push(child);
-        queue.push(child._id);
+        queue.push(child.uniqueID); // push child uniqueIDs to explore their children
       }
     }
-    
+  
     return descendants;
   }
+
+  static async getImmediateChildren(req, res) {
+    try {
+      const { parentUniqueID } = req.params;
+      const vendor = await Vendor.findOne({ uniqueID: parentUniqueID });
+
+      if (!vendor || !vendor.subVendorIDs || vendor.subVendorIDs.length === 0) {
+        return res.status(200).json([]);
+      }
+
+      const children = await Vendor.find({ uniqueID: { $in: vendor.subVendorIDs } });
+      return res.status(200).json(children);
+    } catch (error) {
+      console.error('Error fetching immediate children:', error);
+      return res.status(500).json({ message: 'Server error' });
+    }
+  }
+  
 
   // Get the complete hierarchy tree for a region
   static async getRegionHierarchyTree(region) {

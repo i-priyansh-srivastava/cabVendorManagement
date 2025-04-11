@@ -52,9 +52,15 @@ const vendorSchema = new mongoose.Schema({
   },
   parentId: {
     type: String,
-    required: true,
+    required: function () {
+      return this.level !== 1; // for Super vendor parentId is null
+    },
     unique: true
   },
+  subVendorIDs: {
+    type: [String],
+    default: []
+  }
 }, {
   timestamps: true
 });
