@@ -2,7 +2,6 @@ const Permission = require('../Models/DefaultPermission');
 const Delegation = require('../Models/Delegation');
 const Vendor = require('../Models/Vendor');
 
-// Get permissions for a vendor
 exports.getPermissions = async (req, res) => {
   try {
     const vendorId = req.params.vendorId;
@@ -51,7 +50,6 @@ exports.deletePermissions = async (req, res) => {
   }
 };
 
-// Update permissions for a vendor
 exports.updatePermissions = async (req, res) => {
   try {
     const { vendorUniqueID, parentName, grantedPermissions } = req.body;

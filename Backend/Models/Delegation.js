@@ -19,25 +19,11 @@ const delegationSchema = new mongoose.Schema({
   delegationType: {
     type: String,
     required: true,
-    enum: ['TEMPORARY', 'PERMANENT', 'CONDITIONAL']
+    enum: ['TEMPORARY', 'CONDITIONAL']
   },
   // Specific permissions being delegated
   delegatedPermissions: {
     type: [String],
-    required: true
-  },
-  // Scope of delegation (which entities can be managed)
-  delegationScope: {
-    type: {
-      geographical: {
-        regions: [String],
-        cities: [String]
-      },
-      functional: {
-        departments: [String],
-        processes: [String]
-      }
-    },
     required: true
   },
   // Validity period
@@ -57,18 +43,6 @@ const delegationSchema = new mongoose.Schema({
     required: true,
     enum: ['ACTIVE', 'REVOKED', 'EXPIRED'],
     default: 'ACTIVE'
-  },
-  conditions: {
-    type: {
-      approvalRequired: Boolean,
-      maxAmount: Number,
-      allowedLocalVendors: [String],
-      allowedRegions: [String],
-      allowedCities: [String],
-      timeLimit: Number,
-      notificationRequired: Boolean
-    },
-    required: true
   },
   // Audit trail
   auditLog: [{
