@@ -15,19 +15,18 @@ import axios from 'axios';
 const AddVehicle = () => {
   const [formData, setFormData] = useState({
     registrationNumber: '',
-    make: '',
+    numberPlate: '',
+    color: '',
+    brand: '',
     model: '',
     year: '',
-    color: '',
-    seatingCapacity: '',
-    vehicleType: '',
-    insuranceNumber: '',
-    insuranceExpiry: '',
-    numberPlate: '',
-    brand: '',
-    fuelType: '',
+    seating: '',
+    permitNumber: '',
     pucNumber: '',
     pucExpiryDate: '',
+    insuranceNumber: '',
+    insuranceExpiryDate: '',
+    fuelType: '',
   });
 
   const [error, setError] = useState('');
@@ -37,7 +36,7 @@ const AddVehicle = () => {
 
   useEffect(() => {
     const vendor = AuthService.getCurrentVendor();
-    setCurrentVendor(vendor);
+    setCurrentVendor(vendor?.vendor?.uniqueID);
   }, []);
 
   const handleChange = (e) => {
@@ -51,19 +50,18 @@ const AddVehicle = () => {
   const validateForm = () => {
     const requiredFields = [
       'registrationNumber',
-      'make',
+      'numberPlate',
+      'color',
+      'brand',
       'model',
       'year',
-      'seatingCapacity',
-      'vehicleType',
-      'numberPlate',
-      'brand',
-      'fuelType',
+      'seating',
+      'permitNumber',
       'pucNumber',
       'pucExpiryDate',
       'insuranceNumber',
-      'insuranceExpiry',
-      'color'
+      'insuranceExpiryDate',
+      'fuelType',
     ];
 
     const missingFields = requiredFields.filter(field => !formData[field]);
@@ -71,19 +69,18 @@ const AddVehicle = () => {
     if (missingFields.length > 0) {
       const fieldLabels = {
         registrationNumber: 'Registration Number',
-        make: 'Make',
+        numberPlate: 'Number Plate',
+        color: 'Color',
+        brand: 'Brand',
         model: 'Model',
         year: 'Year',
-        seatingCapacity: 'Seating Capacity',
-        vehicleType: 'Vehicle Type',
-        numberPlate: 'Number Plate',
-        brand: 'Brand',
-        fuelType: 'Fuel Type',
+        seating: 'Seating Capacity',
+        permitNumber: 'Permit Number',
         pucNumber: 'PUC Number',
         pucExpiryDate: 'PUC Expiry Date',
         insuranceNumber: 'Insurance Number',
-        insuranceExpiry: 'Insurance Expiry',
-        color: 'Color'
+        insuranceExpiryDate: 'Insurance Expiry',
+        fuelType: 'Fuel Type',
       };
 
       const missingFieldNames = missingFields.map(field => fieldLabels[field]);
@@ -93,7 +90,7 @@ const AddVehicle = () => {
 
     // Additional validation for date fields
     const currentDate = new Date();
-    const insuranceExpiry = new Date(formData.insuranceExpiry);
+    const insuranceExpiry = new Date(formData.insuranceExpiryDate);
     const pucExpiry = new Date(formData.pucExpiryDate);
 
     if (insuranceExpiry < currentDate) {
@@ -114,8 +111,8 @@ const AddVehicle = () => {
     }
 
     // Validate seating capacity
-    if (formData.seatingCapacity < 1 || formData.seatingCapacity > 20) {
-      setError('Seating capacity must be between 1 and 20');
+    if (formData.seating < 1 || formData.seating > 11) {
+      setError('Seating capacity must be between 1 and 11');
       return false;
     }
 
@@ -135,25 +132,24 @@ const AddVehicle = () => {
       // Create the vehicle
       await axios.post('http://localhost:5000/api/v1/vehicles', {
         ...formData,
-        vendorId: currentVendor.id,
+        vendorUniqueID: currentVendor,
       });
 
       setSuccess('Vehicle added successfully');
       setFormData({
         registrationNumber: '',
-        make: '',
+        numberPlate: '',
+        color: '',
+        brand: '',
         model: '',
         year: '',
-        color: '',
-        seatingCapacity: '',
-        vehicleType: '',
-        insuranceNumber: '',
-        insuranceExpiry: '',
-        numberPlate: '',
-        brand: '',
-        fuelType: '',
+        seating: '',
+        permitNumber: '',
         pucNumber: '',
         pucExpiryDate: '',
+        insuranceNumber: '',
+        insuranceExpiryDate: '',
+        fuelType: '',
       });
     } catch (error) {
       console.error('Error adding vehicle:', error);
@@ -198,9 +194,31 @@ const AddVehicle = () => {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="Make"
-                name="make"
-                value={formData.make}
+                label="Number Plate"
+                name="numberPlate"
+                value={formData.numberPlate}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Color"
+                name="color"
+                value={formData.color}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Brand"
+                name="brand"
+                value={formData.brand}
                 onChange={handleChange}
                 required
               />
@@ -232,20 +250,10 @@ const AddVehicle = () => {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="Color"
-                name="color"
-                value={formData.color}
-                onChange={handleChange}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
                 label="Seating Capacity"
-                name="seatingCapacity"
+                name="seating"
                 type="number"
-                value={formData.seatingCapacity}
+                value={formData.seating}
                 onChange={handleChange}
                 required
               />
@@ -254,80 +262,12 @@ const AddVehicle = () => {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                select
-                label="Vehicle Type"
-                name="vehicleType"
-                value={formData.vehicleType}
-                onChange={handleChange}
-                required
-              >
-                <MenuItem value="sedan">Sedan</MenuItem>
-                <MenuItem value="suv">SUV</MenuItem>
-                <MenuItem value="hatchback">Hatchback</MenuItem>
-                <MenuItem value="luxury">Luxury</MenuItem>
-              </TextField>
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Insurance Number"
-                name="insuranceNumber"
-                value={formData.insuranceNumber}
-                onChange={handleChange}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Insurance Expiry"
-                name="insuranceExpiry"
-                type="date"
-                value={formData.insuranceExpiry}
-                onChange={handleChange}
-                InputLabelProps={{ shrink: true }}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Number Plate"
-                name="numberPlate"
-                value={formData.numberPlate}
+                label="Permit Number"
+                name="permitNumber"
+                value={formData.permitNumber}
                 onChange={handleChange}
                 required
               />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Brand"
-                name="brand"
-                value={formData.brand}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                select
-                label="Fuel Type"
-                name="fuelType"
-                value={formData.fuelType}
-                onChange={handleChange}
-                required
-              >
-                <MenuItem value="petrol">Petrol</MenuItem>
-                <MenuItem value="diesel">Diesel</MenuItem>
-                <MenuItem value="cng">CNG</MenuItem>
-                <MenuItem value="electric">Electric</MenuItem>
-                <MenuItem value="hybrid">Hybrid</MenuItem>
-              </TextField>
             </Grid>
 
             <Grid item xs={12} sm={6}>
@@ -352,6 +292,47 @@ const AddVehicle = () => {
                 required
                 InputLabelProps={{ shrink: true }}
               />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Insurance Number"
+                name="insuranceNumber"
+                value={formData.insuranceNumber}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Insurance Expiry Date"
+                name="insuranceExpiryDate"
+                type="date"
+                value={formData.insuranceExpiryDate}
+                onChange={handleChange}
+                required
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                select
+                label="Fuel Type"
+                name="fuelType"
+                value={formData.fuelType}
+                onChange={handleChange}
+                required
+              >
+                <MenuItem value="PETROL">Petrol</MenuItem>
+                <MenuItem value="DIESEL">Diesel</MenuItem>
+                <MenuItem value="CNG">CNG</MenuItem>
+                <MenuItem value="ELECTRIC">Electric</MenuItem>
+              </TextField>
             </Grid>
 
             <Grid item xs={12}>

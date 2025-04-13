@@ -1,6 +1,5 @@
 const Driver = require('../Models/Driver');
 const Vehicle = require('../Models/Vehicle');
-const bcrypt = require('bcryptjs');
 const axios = require('axios');
 
 // Add new vehicle
@@ -16,33 +15,35 @@ exports.addVehicle = async (req, res) => {
             seating,
             permitNumber,
             pucNumber,
-            insuranceNumber,
             pucExpiryDate,
+            insuranceNumber,
             insuranceExpiryDate,
             fuelType,
             vendorUniqueID,
-            driverLicenceNumber
         } = req.body;
+
+        const driverLicenceNumber = req.params.driverLicenceNumber || "";
+
         console.log('Request body:', req.body);
+        console.log('Driver Licence Number from params:', driverLicenceNumber);
 
         // Validate required vehicle fields
         if (
             !registrationNumber || !numberPlate || !color || !brand || !model || !year || !seating ||
-             !permitNumber || !pucNumber || !insuranceNumber || !pucExpiryDate || 
-              !insuranceExpiryDate || !fuelType || !vendorUniqueID || !driverLicenceNumber
-          ) {
+            !permitNumber || !pucNumber || !insuranceNumber || !pucExpiryDate ||
+            !insuranceExpiryDate || !fuelType || !vendorUniqueID
+        ) {
             return res.status(400).json({
-              success: false,
-              message: 'Please provide all required vehicle details'
+                success: false,
+                message: 'Please provide all required vehicle details'
             });
-          }
-          
+        }
 
-        // Check if vehicle with same registration number or number plate already exists
+        // Check for duplicates
         const existingVehicle = await Vehicle.findOne({
             $or: [
-                { registrationNumber: registrationNumber },
-                { numberPlate: numberPlate }
+                { registrationNumber },
+                { numberPlate }
             ]
         });
 
@@ -53,7 +54,7 @@ exports.addVehicle = async (req, res) => {
             });
         }
 
-        // Create new vehicle
+        // Create and save new vehicle
         const vehicle = new Vehicle({
             registrationNumber,
             numberPlate,
@@ -89,6 +90,7 @@ exports.addVehicle = async (req, res) => {
         });
     }
 };
+
 
 // Add new driver with optional vehicle
 exports.addDriver = async (req, res) => {
@@ -135,7 +137,7 @@ exports.addDriver = async (req, res) => {
             email,
             phone,
             licenseNumber,
-            licenseExpiryDate : licenseExpiry,
+            licenseExpiryDate: licenseExpiry,
             address,
             hasOwnCab,
             vendorUniqueID,
@@ -145,31 +147,30 @@ exports.addDriver = async (req, res) => {
         await driver.save();
 
         // If driver has own cab, create vehicle using the addVehicle method
-        if (hasOwnCab && cabDetails) {
-            const vehicleResponse = await axios.post('http://localhost:5000/api/v1/vehicles', {
-                ...cabDetails,
-                licenseNumber,
-                vendorUniqueID
-            });
+        // if (hasOwnCab && cabDetails) {
+        //     const vehicleResponse = await axios.post(`http://localhost:5000/api/v1/Driver-owned-vehicles/${cabDetails.licenseNumber}`, {
+        //         ...cabDetails,
+        //         vendorUniqueID
+        //     });
 
-            if (vehicleResponse.data.success) {
-                return res.status(201).json({
-                    success: true,
-                    message: 'Driver and vehicle added successfully',
-                    data: {
-                        driver,
-                        vehicle: vehicleResponse.data.data
-                    }
-                });
-            } else {
-                // If vehicle creation fails, delete the driver
-                await Driver.findByIdAndDelete(driver._id);
-                return res.status(400).json({
-                    success: false,
-                    message: 'Failed to add vehicle: ' + vehicleResponse.data.message
-                });
-            }
-        }
+        //     if (vehicleResponse.data.success) {
+        //         return res.status(201).json({
+        //             success: true,
+        //             message: 'Driver and vehicle added successfully',
+        //             data: {
+        //                 driver,
+        //                 vehicle: vehicleResponse.data.data
+        //             }
+        //         });
+        //     } else {
+        //         // If vehicle creation fails, delete the driver
+        //         await Driver.findByIdAndDelete(driver._id);
+        //         return res.status(400).json({
+        //             success: false,
+        //             message: 'Failed to add vehicle: ' + vehicleResponse.data.message
+        //         });
+        //     }
+        // }
 
         return res.status(201).json({
             success: true,
@@ -194,8 +195,7 @@ exports.getDrivers = async (req, res) => {
     try {
         const { vendorId } = req.params;
 
-        const drivers = await Driver.find({ vendorId })
-            .populate('vehicleId', 'registrationNumber numberPlate make model');
+        const drivers = await Driver.find({ vendorUniqueID: vendorId });
 
         res.status(200).json({
             success: true,
@@ -211,30 +211,20 @@ exports.getDrivers = async (req, res) => {
     }
 };
 
-// Get driver details with vehicle
-exports.getDriverDetails = async (req, res) => {
+exports.getVehicles = async (req, res) => {
     try {
-        const { driverId } = req.params;
-
-        const driver = await Driver.findById(driverId)
-            .populate('vehicleId');
-
-        if (!driver) {
-            return res.status(404).json({
-                success: false,
-                message: 'Driver not found'
-            });
-        }
+        const { vendorId } = req.params;
+        const vehicles = await Vehicle.find({ vendorUniqueID: vendorId });
 
         res.status(200).json({
             success: true,
-            data: driver
+            data: vehicles
         });
     } catch (error) {
-        console.error('Error fetching driver details:', error);
+        console.error('Error fetching vehicles:', error);
         res.status(500).json({
             success: false,
-            message: 'Error fetching driver details',
+            message: 'Error fetching vehicles',
             error: error.message
         });
     }

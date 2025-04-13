@@ -1,19 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Box, Container, Grid, Paper, Typography, AppBar, Toolbar, IconButton, Menu,
-  MenuItem, Avatar, Drawer, List, ListItem, ListItemIcon, ListItemText, Divider, CircularProgress, Alert
-} from '@mui/material';
-import {
-  Dashboard as DashboardIcon, AccountCircle, Logout, DirectionsCar, People, CalendarToday,
-  Payment, Gavel, Business, Assessment
-} from '@mui/icons-material';
+import { Box, Container, Grid, Paper, Typography, AppBar, Toolbar, IconButton, Menu,
+  MenuItem, Avatar, Drawer, List, ListItem, ListItemIcon, ListItemText, Divider, CircularProgress, Alert } from '@mui/material';
+import { Dashboard as DashboardIcon, AccountCircle, Logout, DirectionsCar, People, CalendarToday,
+  Payment, Gavel, Business, Assessment } from '@mui/icons-material';
 import AuthService from '../../services/authServices';
 import axios from 'axios';
 
 import VendorManagement from './features/VendorManagement';
 import DriverManagement from './features/DriverManagement';
-// import FleetManagement from './features/manageFleet';
+import FleetManagement from './features/FleetManagement';
 // import BookingManagement from './features/manageBookings';
 // import PaymentManagement from './features/managePayments';
 // import ComplianceManagement from './features/manageCompliance';
@@ -35,7 +31,7 @@ const Dashboard = () => {
   const moduleComponentMap = {
     vendorManagement: <VendorManagement />,
     driverManagement: <DriverManagement />,
-    // fleetManagement: <FleetManagement />,
+    fleetManagement: <FleetManagement />,
     // bookingManagement: <BookingManagement />,
     // paymentManagement: <PaymentManagement />,
     // complianceManagement: <ComplianceManagement />,

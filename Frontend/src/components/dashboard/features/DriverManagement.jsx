@@ -17,7 +17,8 @@ const DriverManagement = () => {
     setError('');
     try {
       const response = await axios.get(`http://localhost:5000/api/v1/drivers/byParent/${parentID}`);
-      setDrivers(response.data);
+      setDrivers(response.data.data);
+      console.log('Fetched drivers:', response.data);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch drivers');
     } finally {
@@ -51,10 +52,6 @@ const DriverManagement = () => {
     await fetchDrivers(parentID);
   };
 
-  const handleCheckHierarchy = async (driver) => {
-    setHierarchyStack((prev) => [...prev, { name: driver.name, uniqueID: driver.uniqueID }]);
-    await fetchDrivers(driver.uniqueID);
-  };
 
   const handleSearch = () => {
     console.log('Search term:', searchTerm);
@@ -129,19 +126,41 @@ const DriverManagement = () => {
                       <CardContent>
                         <Typography variant="h6">{driver.name}</Typography>
                         <Typography variant="body2" color="text.secondary">
-                          Unique ID: {driver.uniqueID}
+                          License: {driver.licenseNumber}
                         </Typography>
+
+                        <Typography variant="body2" color="text.secondary">
+                          Contact: {driver.phone}
+                        </Typography>
+
+                        {driver.vehicleRegistrationNumber ? (
+                          <Box sx={{ mt: 1 }}>
+                            <Typography variant="body2">
+                              Registration No: {driver.vehicleRegistrationNumber}
+                            </Typography>
+                            
+                          </Box>
+                        ) : (
+                          <Box sx={{ mt: 1 }}>
+                            <Typography variant="body2" color="text.secondary">
+                              No vehicle assigned
+                            </Typography>
+                            <Button
+                              variant="outlined"
+                              color="warning"
+                              sx={{ mt: 1 }}
+                              onClick={() => console.log('Assign vehicle for', driver.name)}
+                            >
+                              Assign Vehicle
+                            </Button>
+                          </Box>
+                        )}
+
                         <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
                           <Button variant="contained" color="primary">
                             Manage Driver
                           </Button>
-                          <Button
-                            variant="outlined"
-                            color="secondary"
-                            onClick={() => handleCheckHierarchy(driver)}
-                          >
-                            Check Hierarchy
-                          </Button>
+
                         </Box>
                       </CardContent>
                     </Card>
@@ -150,6 +169,7 @@ const DriverManagement = () => {
               ) : (
                 <Typography variant="body1">No drivers found.</Typography>
               )}
+
             </Grid>
           </Box>
         </>

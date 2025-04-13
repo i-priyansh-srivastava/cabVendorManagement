@@ -125,14 +125,14 @@ const AddDriver = () => {
         vendorUniqueID: currentVendor,
       });
 
-      console.log(currentVendor);
-      console.log('Driver Licence Number:', formData.licenseNumber);
+      // console.log(currentVendor);
+      // console.log('Driver Licence Number:', formData.licenseNumber);
+      const driverLicenceNumber = formData.licenseNumber;
       if (driverResponse.data && formData.hasOwnCab) {
         // If driver has own cab, create the vehicle
-        await axios.post('http://localhost:5000/api/v1/vehicles', {
+        await axios.post(`http://localhost:5000/api/v1/Driver-owned-vehicles/${driverLicenceNumber}`, {
           ...formData.cabDetails,
           vendorUniqueID: currentVendor,
-          driverLicenceNumber: formData.licenseNumber,
         });
       }
 
@@ -436,11 +436,10 @@ const AddDriver = () => {
                     onChange={handleChange}
                     required
                   >
-                    <MenuItem value="petrol">Petrol</MenuItem>
-                    <MenuItem value="diesel">Diesel</MenuItem>
-                    <MenuItem value="cng">CNG</MenuItem>
-                    <MenuItem value="electric">Electric</MenuItem>
-                    <MenuItem value="hybrid">Hybrid</MenuItem>
+                    <MenuItem value="PETROL">Petrol</MenuItem>
+                    <MenuItem value="DIESEL">Diesel</MenuItem>
+                    <MenuItem value="CNG">CNG</MenuItem>
+                    <MenuItem value="ELECTRIC">Electric</MenuItem>
                   </TextField>
                 </Grid>
               </>

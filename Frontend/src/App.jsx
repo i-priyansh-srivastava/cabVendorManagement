@@ -6,8 +6,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Login from './components/auth/Login';
 import Dashboard from './components/dashboard/Dashboard';
 import ProtectedRoute from './components/auth/ProtectedRoute';
-import AddVendor from "./components/onboarding/AddDriver";
-// import AddVendor from "./components/onboarding/AddVehicle";
 
 import DefaultPermission from "./components/vendorAdd/DefineDefaultRole";
 
@@ -46,15 +44,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-
-          <Route
-            path="/add_driver"
-            element={
-              <ProtectedRoute>
-                <AddVendor />
-              </ProtectedRoute>
-            }
-          />
+          
           <Route path="/" element={<Login />} />
         </Routes>
       </Router>
